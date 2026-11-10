@@ -14,7 +14,7 @@
 |   1 | Doan Sy Hung | 2A202603990 | hungizumi1210@gmail.com | https://github.com/hgmdz1210 | Prompt & Eval lead |
 |   2 | Long | <điền MSSV> | <điền email> | <điền GitHub> | Tool mới & test |
 |   3 | Trần Việt Anh | 2A202604029 | 26ai.anhtv2@vinuni.edu.vn | https://github.com/Vietzanh | Eval nhóm & Tool unit test |
-|   4 | Chiêu | <điền MSSV> | <điền email> | <điền GitHub> | UI, chat live & báo cáo |
+|   4 | Phạm Văn Chiêu | 2A202604033 | chieupham1011@gmail.com | https://github.com/pvchiu | UI, chat live & báo cáo |
 
 ## Chia việc
 
@@ -50,3 +50,24 @@ Sao chép mục dưới đây cho từng thành viên.
 ### Bằng chứng
 
 -
+
+## PhamVanChieu-2A202604033
+
+### Phần việc phụ trách
+
+- Vai 4: Xây dựng UI/UX Streamlit (`starter_v0/app.py`), cập nhật `starter_v0/requirements.txt`, mở link dùng thử (Cloudflare Tunnel).
+- Chạy chat live (`starter_v0/chat.py`), hoàn thiện Phần A trước showdown và tổng hợp Phần B trong `report/team/group_report.md`.
+
+### Đóng góp cụ thể
+
+- Thiết kế và xây dựng giao diện web Streamlit (`starter_v0/app.py`): đọc động `system_prompt.md` + `tools.yaml`, hỗ trợ chuyển đổi qua lại trực tiếp giữa các snapshot Git (`v0`–`v4`) và bản trên đĩa (`Current`), tích hợp `run_model_tool_loop` (`chat.py`), hiển thị minh bạch tool calls & lỗi tool (không che lỗi), nút tương tác `clarify` (`yes_no`/`choice`), câu hỏi mẫu Showdown, tự động lưu & tải transcript JSON.
+- Cập nhật `starter_v0/requirements.txt` (`streamlit>=1.50.0`) và kiểm thử cục bộ (`AppTest` đủ các version `v0`–`v4`, HTTP 200, `pytest` `72 passed, 14 skipped`, `0 failed`).
+- Hoàn thiện Phần A (`A1`–`A3` gồm tool mới `verify_reference`), mục UI ở `B5a` và mục `5` trong `report/team/group_report.md`; hoàn thiện báo cáo cá nhân `report/team/2A202604033_PhamVanChieu.md`.
+- *(Còn phiên chat live ≥ 3 lượt trên bản chốt mới nhất để điền `B4`, mở link Cloudflare Tunnel công khai và ráp Phần B cùng nhóm để chốt nộp bài.)*
+
+### Bằng chứng
+
+- Báo cáo cá nhân: `report/team/2A202604033_PhamVanChieu.md`
+- Code, dependency UI & bằng chứng lỗi provider: `starter_v0/app.py`, `starter_v0/requirements.txt`, `starter_v0/runs/v0_B_base_gemini_20261110T181044880645.json`
+- Báo cáo nhóm (Phần A, B5a UI, Mục 5): `report/team/group_report.md`
+- Transcript live bản chốt (C6/B4) & Link Cloudflare Tunnel: *(bổ sung ở commit chốt sau khi chạy phiên ≥ 3 lượt chuẩn và mở tunnel)*

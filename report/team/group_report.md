@@ -8,45 +8,55 @@
 
 ## 1. Thông tin nhóm
 
-- Tên nhóm:
+- Tên nhóm: NhomABCD
 - Thành viên và phân công: xem [TEAM.md](../../TEAM.md)
-- Provider/model dùng cho v0–v3:
+- Provider/model dùng cho v0–v3: `openai` (`gpt-4o-mini`)
 
 ## 2. Mục tiêu và cách tiếp cận — PHẦN A: Giới thiệu agent
 
 ### A1. Agent này làm được gì
 
-> 1–2 câu mô tả agent dùng để làm gì (cho team khác hiểu nhanh).
-
-Ví dụ: "Research agent: tìm tin theo từ khóa / theo tài khoản, đọc URL, tổng hợp thành digest, và gửi lên Telegram khi được xác nhận."
+Research agent hỗ trợ tìm kiếm thông tin thời sự/web (`lookup`), theo dõi bài đăng theo tài khoản hoặc chủ đề trên X/Twitter (`timeline`, `social_search`), đọc nội dung URL (`fetch`), tìm và đọc paper arXiv (`papers`, `paper_text`), kiểm tra DOI/tiêu đề tài liệu học thuật qua metadata Crossref (`verify_reference`), tra tài liệu nội bộ (`policy`), tổng hợp thành digest (`format`), biết hỏi lại khi thiếu thông tin (`clarify`) và chỉ gửi Telegram (`send`) sau khi người dùng xác nhận rõ ràng.
 
 **Cách chạy UI:**
 
-> Lệnh chạy UI (ví dụ `streamlit run app.py`) và dependency đã thêm vào `starter_v0/requirements.txt`.
+Chạy từ thư mục `starter_v0/` (đã bổ sung `streamlit>=1.50.0` vào `starter_v0/requirements.txt`):
+
+```powershell
+cd starter_v0
+pip install -r requirements.txt
+streamlit run app.py
+```
 
 **Link dùng thử (deploy):**
 
-> Dán link public để team khác mở thử ngay. Cách deploy nhanh bằng Cloudflare Tunnel xem README. Nếu deploy Vercel/Streamlit Cloud thì dán link đó.
->
-> URL:
+Mở Cloudflare Tunnel trỏ vào cổng Streamlit (`cloudflared tunnel --url http://localhost:8501`):
+
+> URL: *(dán link `https://*.trycloudflare.com` khi bật `cloudflared tunnel --url http://localhost:8501` lúc showdown/chấm bài)*
 
 ### A2. Tool agent có
 
-> Liệt kê các tool agent đang dùng (gồm tool mới nhóm tự thêm). Mỗi tool 1 dòng: tên + làm được gì.
-
 | Tên tool | Làm được gì | Tool mới nhóm thêm? |
 |---|---|---|
-| clarify | hỏi lại người dùng khi thiếu thông tin | không |
-|  |  |  |
-|  |  |  |
+| `clarify` | Hỏi lại người dùng khi thiếu thông tin hoặc cần xác nhận hành động (`text` / `yes_no` / `choice`) | không |
+| `timeline` | Lấy các bài đăng gần đây trên X/Twitter của một tài khoản (`screenname`) | không |
+| `social_search` | Tìm bài đăng trên X/Twitter theo từ khóa (`Latest` / `Top`) | không |
+| `lookup` | Tìm kiếm thông tin/tin tức trên web (`topic`: `general`/`news`, `timeframe`) | không |
+| `fetch` | Đọc nội dung văn bản/markdown từ một URL cụ thể | không |
+| `format` | Trình bày danh sách kết quả đã thu thập thành digest markdown (`brief`, `sections`, `bullets`, `thread`, `daily_ai_vn`) | không |
+| `send` | Gửi thông điệp lên Telegram channel (chỉ gửi khi `confirmed=true`) | không |
+| `policy` | Tìm kiếm trong tài liệu chính sách nội bộ (`company_policy/*.md`) | không |
+| `papers` | Tìm kiếm bài báo khoa học trên arXiv | không |
+| `paper_text` | Tải PDF bài báo arXiv và trích xuất văn bản | không |
+| `verify_reference` | Kiểm tra DOI hoặc tiêu đề tài liệu học thuật trên Crossref để xác minh bản ghi và lấy metadata trích dẫn | **có** |
 
 ### A3. Câu hỏi mẫu để thử
 
-> 3–5 câu hỏi/yêu cầu mẫu để team khác tự thử agent ngay.
-
-1.
-2.
-3.
+1. **Tìm tin tổng hợp:** `"Tin tức AI hôm nay có gì nổi bật?"`
+2. **Tra cứu tài khoản X:** `"Lấy 5 tweet mới nhất của Elon Musk"`
+3. **Kiểm tra hỏi lại (`clarify`) khi thiếu thông tin:** `"Tóm tắt 5 tweet mới nhất giúp mình"` *(sau đó bổ sung tên/handle ở lượt 2)*
+4. **Kiểm tra guardrail xác nhận trước khi gửi (`send`):** `"Đăng bản tin này lên Telegram giúp mình"`
+5. **Kiểm tra tool mới của nhóm (`verify_reference`):** `"Kiểm tra DOI 10.1038/s41586-021-03819-2 trên Crossref giúp mình"`
 
 ## 3. Giải pháp
 
@@ -97,7 +107,7 @@ Lấy từ `starter_v0/transcripts/*.transcript.json`.
 |---|---|---|---|
 | Tool mới (`tools/<tên>/`) |  |  |  |
 | Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed) |  |  |
-| UI (lệnh chạy + link dùng thử) |  |  |  |
+| UI (lệnh chạy + link dùng thử) | `starter_v0/app.py`, `starter_v0/requirements.txt` (lệnh: `streamlit run app.py`; link tunnel cập nhật khi mở `cloudflared` lúc demo) | Đọc động `system_prompt.md` + `tools.yaml` (hiển thị đủ 11 tools gồm `verify_reference`), hỗ trợ đổi qua lại các snapshot Git `v0`–`v4`, đa lượt `run_model_tool_loop`, nút quick-reply `clarify` (`yes_no`/`choice`), tự lưu & tải transcript JSON; `AppTest` + `pytest` (`72 passed, 14 skipped`) đều xanh | Hiển thị trung thực lỗi tool/provider (`st.error` + tự mở expander); không dùng `unsafe_allow_html` với nội dung web; tách `untrusted_text` của `policy`; bảo vệ `send` bằng `needs_confirmation`; không commit `.env` |
 
 Tool unit tests: số test đã viết, và một ví dụ lỗi mà unit test bắt được nhưng eval không bắt được.
 
@@ -142,9 +152,10 @@ Lỗi đặc thù của model nhỏ (đếm từ run JSON):
 
 ## 5. Khó khăn và cách xử lý
 
-> Khó khăn chính và cách nhóm xử lý. Nếu gặp lỗi kỹ thuật (provider lỗi, hết quota API, tool không chạy), mô tả lỗi và dẫn bằng chứng: run JSON, log, ảnh chụp.
-
--
+- **Lỗi provider Gemini (model mặc định treo, phiên bản API `v1` vs `v1beta`, và giới hạn 5 RPM):**
+  - *Hiện tượng & Bằng chứng:* Khi kiểm tra bằng `scripts/preflight_provider.py --provider gemini`, model mặc định `gemini-3.8-flash` bị treo; khi chuyển sang `--model gemini-2.5-flash`, SDK `google-genai` mặc định gọi API `v1` nên báo lỗi `400 INVALID_ARGUMENT` vì `function_calling` yêu cầu `v1beta`. Sau khi thêm `GOOGLE_GENAI_API_VERSION=v1beta`, chạy 20 case `eval_base.json` vẫn bị lỗi `429 RESOURCE_EXHAUSTED` (free tier giới hạn 5 requests/phút) dẫn tới `provider_error_cases: 9`, `measured_cases: 11/20` (bằng chứng: `starter_v0/runs/v0_B_base_gemini_20261110T181044880645.json`).
+  - *Cách xử lý:* Không dùng run Gemini bị lỗi làm baseline theo đúng quy tắc hợp lệ; nhóm chuyển sang dùng OpenAI (`gpt-4o-mini`) để đạt `provider_error_cases: 0` (`20/20` measured). Đồng thời trong giao diện `starter_v0/app.py`, mặc định ưu tiên provider đã cấu hình key ổn định (`openai`) và gợi ý sẵn `gemini-2.5-flash` nếu chuyển sang Gemini.
+- *(Bổ sung thêm các khó khăn của thành viên khác nếu có sau khi ghép Phần B.)*
 
 ## 6. Tổng hợp đóng góp
 
