@@ -39,11 +39,15 @@ tools:
       required: [question, response_type]
 
   - name: timeline
-    description: "Lấy các bài đăng gần đây."
+    description: >-
+      Lấy các bài đăng (tweet) gần đây của MỘT tài khoản cụ thể mà người dùng đã nêu rõ.
+      KHÔNG DÙNG KHI người dùng chưa nói tài khoản nào (ví dụ "5 tweet mới nhất" mà không có tên người/handle):
+      khi đó gọi `clarify` (response_type=`text`) để hỏi tài khoản. Không tự chọn hay đoán tài khoản.
+      Tìm bài theo chủ đề/từ khóa thì dùng `social_search`, không dùng tool này.
     parameters:
       type: object
       properties:
-        screenname: {type: string, default: "", description: "Tên tài khoản"}
+        screenname: {type: string, default: "", description: "Handle của tài khoản người dùng đã nêu, không có '@' (ví dụ sama, elonmusk). Không bao giờ là tên nền tảng như Twitter/X, không phải từ khóa, không được đoán."}
         limit: {type: integer, default: 5, description: "Số lượng"}
       required: [screenname]
 
