@@ -142,3 +142,11 @@ tools:
         max_pages: {type: integer, default: 5, description: "Số trang"}
         max_chars: {type: integer, default: 8000, description: "Số ký tự"}
       required: [arxiv_url]
+
+  - name: verify_reference
+    description: "Kiểm tra DOI hoặc tiêu đề tài liệu học thuật trong metadata Crossref. Dùng khi cần xác minh có bản ghi Crossref và lấy metadata trích dẫn; không xác nhận nội dung toàn văn hay độ đúng khoa học. Với tiêu đề, xem kết quả là ứng viên và đối chiếu tác giả/tên trước khi trích dẫn. Dùng papers để tìm bài arXiv, fetch để đọc URL người dùng cung cấp."
+    parameters:
+      type: object
+      properties:
+        reference: {type: string, description: "DOI, URL doi.org, hoặc tiêu đề tài liệu học thuật cần kiểm tra"}
+      required: [reference]

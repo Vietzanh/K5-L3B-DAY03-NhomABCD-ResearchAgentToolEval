@@ -110,13 +110,69 @@ def test_policy_instruction_like_lines_go_to_untrusted_text() -> None:
 #   2. bad / missing input from the model (empty string, wrong type, out-of-enum value)
 #   3. failure path (missing key, HTTP error, timeout) -> returns error dict, does not raise
 
-def test_my_new_tool_happy_path() -> None:
-    pytest.skip(TODO)
+def test_verify_reference_finds_doi_and_formats_metadata(fake_http) -> None:
+    calls = fake_http(FakeResponse({"message": {
+        "DOI": "10.1234/example.1",
+        "title": ["A Research Paper"],
+        "author": [{"given": "Ada", "family": "Lovelace"}],
+        "published": {"date-parts": [[2024, 5, 1]]},
+        "publisher": "Example Press",
+        "type": "journal-article",
+    }}))
+
+    result = TOOL_FUNCTIONS["verify_reference"](reference="doi:10.1234/example.1")
+
+    assert result["found"] is True
+    assert result["match_type"] == "doi"
+    assert result["items"][0]["title"] == "A Research Paper"
+    assert result["items"][0]["authors"] == ["Ada Lovelace"]
+    assert result["items"][0]["year"] == 2024
+    assert calls[0]["url"] == "https://api.crossref.org/works/10.1234/example.1"
+    assert calls[0]["timeout"] > 0
 
 
-def test_my_new_tool_bad_input_from_model() -> None:
-    pytest.skip(TODO)
+def test_verify_reference_searches_title_and_returns_candidates(fake_http) -> None:
+    calls = fake_http(FakeResponse({"message": {"items": [{
+        "DOI": "10.1234/example.2",
+        "title": ["Reliable Tool Evaluation"],
+        "author": [{"given": "Grace", "family": "Hopper"}],
+    }]}}))
+
+    result = TOOL_FUNCTIONS["verify_reference"](reference="Reliable Tool Evaluation")
+
+    assert result["found"] is True
+    assert result["match_type"] == "title_search"
+    assert result["items"][0]["doi"] == "10.1234/example.2"
+    assert calls[0]["params"] == {"query.bibliographic": "Reliable Tool Evaluation", "rows": 3}
 
 
-def test_my_new_tool_failure_returns_error_dict() -> None:
-    pytest.skip(TODO)
+def test_verify_reference_rejects_empty_or_oversized_input(fake_http) -> None:
+    verify_reference = TOOL_FUNCTIONS["verify_reference"]
+    calls = fake_http(FakeResponse({}))
+
+    empty_result = verify_reference(reference="  ")
+    long_result = verify_reference(reference="x" * 501)
+
+    assert empty_result["found"] is False
+    assert empty_result["items"] == []
+    assert long_result["error"] == "ValueError"
+    assert calls == []
+
+
+def test_verify_reference_returns_not_found_for_unknown_doi(fake_http) -> None:
+    fake_http(FakeResponse(status_code=404))
+
+    result = TOOL_FUNCTIONS["verify_reference"](reference="10.1234/missing")
+
+    assert result["found"] is False
+    assert result["match_type"] == "doi"
+    assert result["items"] == []
+
+
+def test_verify_reference_http_error_returns_error_dict(fake_http) -> None:
+    fake_http(FakeResponse(status_code=503))
+
+    result = TOOL_FUNCTIONS["verify_reference"](reference="10.1234/example.1")
+
+    assert result["tool"] == "verify_reference"
+    assert result["error"] == "HTTPError"
