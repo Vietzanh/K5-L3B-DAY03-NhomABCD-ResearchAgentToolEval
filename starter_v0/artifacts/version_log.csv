@@ -1,1 +1,2 @@
 version,author,changed_artifact,artifact_version,prompt_hash,tools_hash,reason,hypothesis,metric_before,metric_after,run_file
+v0,Doan Sy Hung,baseline,v0+peb1c8179815b+te69bc53ed884,eb1c8179815b,e69bc53ed884,baseline - starter prompt/tools chua sua (provider=openai model=gpt-4o-mini),Do hanh vi chua toi uu truoc khi sua,,0.70 (14/20; routing=0.75 args=0.70 multiturn=1.00),runs/v0_B_base_openai_20261110T181658629110.json
