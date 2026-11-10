@@ -20,7 +20,9 @@ tools:
       Hỏi lại người dùng một câu và chờ lượt trả lời tiếp theo.
       DÙNG KHI: (1) thiếu thông tin bắt buộc mà không được đoán, ví dụ chưa biết tài khoản nào
       hoặc chưa có URL; (2) người dùng yêu cầu gửi/đăng/publish (Telegram, kênh, ...) mà CHƯA xác nhận
-      — phải hỏi xác nhận trước khi gọi `send`, kể cả khi nội dung chưa đầy đủ.
+      — tool call đầu tiên phải dùng response_type=`yes_no`, tuyệt đối không dùng `text` để hỏi có muốn publish không.
+      Nếu chưa có nội dung chính xác, chỉ hỏi người dùng có muốn chuẩn bị bản nháp; phải xin xác nhận yes_no
+      lần nữa cho đúng nội dung cuối cùng trước khi gọi `send`.
       KHÔNG DÙNG KHI: yêu cầu đã đủ thông tin để gọi tool khác; câu hỏi ngoài phạm vi research
       (trả lời bằng text, không gọi tool).
     parameters:
@@ -30,10 +32,9 @@ tools:
         response_type:
           type: string
           enum: [text, yes_no, choice]
-          default: "text"
           description: >-
-            Luôn truyền rõ giá trị này. `text`: hỏi thông tin còn thiếu dạng tự do (tên tài khoản, URL, chủ đề).
-            `yes_no`: xin xác nhận trước một hành động như gửi/đăng bằng `send`.
+            Bắt buộc chọn rõ. `text`: chỉ hỏi thông tin còn thiếu dạng tự do (tên tài khoản, URL, chủ đề), KHÔNG dùng để xin phép gửi/đăng.
+            `yes_no`: bắt buộc cho lần hỏi đầu tiên trước mọi yêu cầu gửi/đăng chưa được xác nhận; nếu thiếu nội dung thì hỏi có muốn chuẩn bị bản nháp.
             `choice`: chỉ khi có sẵn các phương án cụ thể, kèm `options`.
         options: {type: array, default: [], items: {type: string}, description: "Danh sách phương án, chỉ dùng khi response_type=choice."}
       required: [question, response_type]
