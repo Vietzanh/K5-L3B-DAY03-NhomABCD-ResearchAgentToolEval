@@ -16,14 +16,27 @@
 tools:
   # ---------------- Core tools ----------------
   - name: clarify
-    description: "Gửi một câu hỏi cho người dùng."
+    description: >-
+      Hỏi lại người dùng một câu và chờ lượt trả lời tiếp theo.
+      DÙNG KHI: (1) thiếu thông tin bắt buộc mà không được đoán, ví dụ chưa biết tài khoản nào
+      hoặc chưa có URL; (2) người dùng yêu cầu gửi/đăng/publish (Telegram, kênh, ...) mà CHƯA xác nhận
+      — phải hỏi xác nhận trước khi gọi `send`, kể cả khi nội dung chưa đầy đủ.
+      KHÔNG DÙNG KHI: yêu cầu đã đủ thông tin để gọi tool khác; câu hỏi ngoài phạm vi research
+      (trả lời bằng text, không gọi tool).
     parameters:
       type: object
       properties:
-        question: {type: string, default: "", description: "Câu hỏi"}
-        response_type: {type: string, enum: [text, yes_no, choice], default: "text", description: "Kiểu trả lời"}
-        options: {type: array, default: [], items: {type: string}, description: "Các lựa chọn"}
-      required: [question]
+        question: {type: string, default: "", description: "Câu hỏi ngắn gửi người dùng, nêu rõ thông tin cần bổ sung hoặc nội dung sẽ được gửi."}
+        response_type:
+          type: string
+          enum: [text, yes_no, choice]
+          default: "text"
+          description: >-
+            Luôn truyền rõ giá trị này. `text`: hỏi thông tin còn thiếu dạng tự do (tên tài khoản, URL, chủ đề).
+            `yes_no`: xin xác nhận trước một hành động như gửi/đăng bằng `send`.
+            `choice`: chỉ khi có sẵn các phương án cụ thể, kèm `options`.
+        options: {type: array, default: [], items: {type: string}, description: "Danh sách phương án, chỉ dùng khi response_type=choice."}
+      required: [question, response_type]
 
   - name: timeline
     description: "Lấy các bài đăng gần đây."
@@ -86,12 +99,18 @@ tools:
 
   # ---------------- Bonus tools ----------------
   - name: send
-    description: "Gửi một đoạn văn bản đi."
+    description: >-
+      Gửi/đăng một đoạn văn bản ra kênh Telegram bên ngoài. Đây là hành động publish, không thể thu hồi.
+      CHỈ DÙNG KHI người dùng đã trả lời "có" cho một câu hỏi `clarify` với response_type=`yes_no`
+      về đúng nội dung sẽ gửi, trong cuộc hội thoại này.
+      Nếu người dùng yêu cầu gửi/đăng nhưng chưa xác nhận: KHÔNG gọi tool này, hãy gọi `clarify`
+      (response_type=`yes_no`) trước.
+      KHÔNG DÙNG để trả lời người dùng hay trình bày kết quả; câu trả lời bình thường viết bằng text.
     parameters:
       type: object
       properties:
-        text: {type: string, default: "", description: "Nội dung"}
-        confirmed: {type: boolean, default: false, description: "Cờ xác nhận"}
+        text: {type: string, default: "", description: "Nội dung cuối cùng sẽ được đăng, đúng như đã được người dùng xác nhận."}
+        confirmed: {type: boolean, default: false, description: "Chỉ đặt true khi người dùng đã xác nhận rõ ràng (trả lời có) cho việc gửi nội dung này. Nếu chưa xác nhận thì không gọi send."}
       required: [text]
 
   - name: policy
