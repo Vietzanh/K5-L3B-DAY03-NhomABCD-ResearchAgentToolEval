@@ -135,12 +135,12 @@ Sao chép mục dưới đây cho từng thành viên.
   - Evaluation run v7: v7_B_group_openrouter_20261111T094308640312.
   - Báo cáo nhóm report/team/group_report.md mục (B3. Team Eval Cases)
 
-** Trần Bảo Long - 2A202604012 **
- ## Phần việc phụ trách
+## Trần Bảo Long - 2A202604012
+ ### Phần việc phụ trách
 
-Phụ trách CP3 — tool mới và unit test: thiết kế, cài đặt, ghi tài liệu, đăng ký tool vào hệ thống và kiểm tra bằng unit test offline.
+- Phụ trách CP3 — tool mới và unit test: thiết kế, cài đặt, ghi tài liệu, đăng ký tool vào hệ thống và kiểm tra bằng unit test offline.
 
-##  Đóng góp cụ thể
+###  Đóng góp cụ thể
 
 - Xây dựng tool `verify_reference` tra cứu bản ghi tài liệu học thuật qua Crossref bằng DOI hoặc tiêu đề; trả về metadata và trạng thái tìm thấy.
 - Thêm xử lý DOI không tồn tại, dữ liệu đầu vào rỗng/quá dài và lỗi HTTP; kết quả lỗi được trả dưới dạng error dict.
@@ -149,7 +149,7 @@ Phụ trách CP3 — tool mới và unit test: thiết kế, cài đặt, ghi t�
 - Hỗ trợ thêm một vòng cải thiện quy tắc xác nhận publish: lần chạy v5 mới đạt 20/20 case. Đây là kết quả eval của prompt/tool declaration, không phải kết quả unit test của tool mới.
 - chạy kiểm tra lại v3, v4, v5.
 
-##  Bằng chứng
+###  Bằng chứng
 
 - Tool: [implementation](../../starter_v0/tools/verify_reference/tool.py), [TOOL.md](../../starter_v0/tools/verify_reference/TOOL.md).
 - Đăng ký: [tools.yaml](../../starter_v0/artifacts/tools.yaml), [registry](../../starter_v0/tools/__init__.py).
