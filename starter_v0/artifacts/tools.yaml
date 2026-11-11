@@ -63,7 +63,7 @@ tools:
         query: {type: string, default: "", description: "Chủ đề/từ khóa cần tìm, ngắn gọn (ví dụ 'OpenAI', 'AI agent evaluation'); không thêm từ chỉ thời gian hay cách sắp xếp."}
         search_type: {type: string, enum: [Latest, Top], default: "Latest", description: "Luôn truyền rõ. `Latest`: bài mới nhất/gần đây (mặc định nếu người dùng không nói gì). `Top`: bài nổi bật/hot/nhiều tương tác nhất."}
         limit: {type: integer, default: 5, description: "Số bài người dùng yêu cầu (ví dụ '6 tweet' thì limit=6); nếu không nói thì 5."}
-      required: [query]
+      required: [query, search_type]
 
   - name: lookup
     description: >-
