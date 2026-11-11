@@ -71,3 +71,33 @@ Sao chép mục dưới đây cho từng thành viên.
 - Code, dependency UI & bằng chứng lỗi provider: `starter_v0/app.py`, `starter_v0/requirements.txt`, `starter_v0/runs/v0_B_base_gemini_20261110T181044880645.json`
 - Báo cáo nhóm (Phần A, B5a UI, Mục 5): `report/team/group_report.md`
 - Transcript live bản chốt (C6/B4) & Link Cloudflare Tunnel: *(bổ sung ở commit chốt sau khi chạy phiên ≥ 3 lượt chuẩn và mở tunnel)*
+
+
+## TranVietAnh-2A202604029
+
+### Phần việc phụ trách
+
+- Xây dựng bộ 10 test case bổ sung cho bộ evaluation có sẵn, gồm 5 single-turn (query) và 5 multi-turn (turns).
+- Thiết kế các tình huống kiểm tra khả năng routing tool, trích xuất arguments, xử lý ngữ cảnh nhiều lượt và kiểm soát hành động bên ngoài.
+- Bổ sung các test case nhằm đánh giá khả năng sử dụng những tool mới do nhóm phát triển.
+- Chạy evaluation trên Prompt v4, phân tích kết quả và xác định các điểm cần cải thiện.
+
+### Đóng góp cụ thể
+
+- Thiết kế bộ test: Xây dựng 10 test case trong eval_group.json, bao phủ các tình huống như chuẩn hóa Twitter/X handle, tìm kiếm tweet theo chủ đề, lựa chọn phạm vi tìm kiếm, format dữ liệu có sẵn và tra cứu policy nội bộ.
+- Kiểm tra các tool mới: Bổ sung các trường hợp kiểm tra khả năng routing đến verify_reference, policy, papers và paper_text, giúp đánh giá mức độ tích hợp các chức năng nghiên cứu mới của nhóm.
+- Kiểm tra xử lý hội thoại nhiều lượt: Thiết kế các tình huống yêu cầu agent kế thừa chủ đề, cập nhật bộ lọc tìm kiếm, thay đổi số lượng kết quả, duy trì phạm vi truy vấn và xử lý yêu cầu hủy hành động gửi Telegram.
+- Rà soát expected output: Đối chiếu từng test case với khai báo tool trong tools.yaml, chuẩn hóa expected tool calls và arguments để đảm bảo mỗi case kiểm tra được hành vi cụ thể, hạn chế các trường hợp pass dù agent truyền thiếu tham số quan trọng.
+- Chạy thử nghiệm và phân tích kết quả: Thực hiện evaluation với prompt v4 , thu được kết quả:
+  - Case accuracy: 90% (9/10 cases passed).
+  - Tool routing accuracy: 100%.
+  - Argument accuracy: 90%.
+  - Multi-turn accuracy: 100%.
+- Phân tích lỗi: Xác định G02 là test case duy nhất thất bại. Agent gọi đúng social_search, truyền đúng query và limit, nhưng không truyền tường minh search_type="Latest" mà dựa vào giá trị mặc định của tool. Từ đó nhận diện vấn đề trong việc ánh xạ đầy đủ intent của người dùng sang arguments.
+
+### Bằng chứng
+
+- File commit:
+  - starter_v0/data/eval_group.json: Bộ 10 test case nhóm.
+  - Evaluation run: v4_B_group_openrouter_20261111T081004535910.
+  - Báo cáo nhóm `report/team/group_report.md` mục B3. Team Eval Cases
