@@ -21,8 +21,8 @@
 | Vai | Thành viên | Phụ trách | File chính | Điểm |
 | --- | ---------- | --------- | ---------- | ---- |
 | 1. Prompt & Eval lead | Hưng | Sửa prompt/tool declaration, chạy v1→v3, ghi `version_log.csv`, bảng B1 + B2 | `system_prompt.md`, `tools.yaml`, `runs/` | C1, C2, C3 |
-| 2. Tool mới & test | Long | Viết ≥ 1 tool mới, `TOOL.md`, đăng ký trong `tools/__init__.py` + `tools.yaml`, ≥ 3 test/tool, `pytest` 0 failed, bảng B5a | `tools/<tên>/`, `tests/test_tools_todo.py` | C4 |
-| 3. Eval nhóm | Việt Anh | Viết đúng 10 case (5 single + 5 multi), ≥ 1 case route tới tool mới, chạy `--suite group`, bảng B3 | `data/eval_group.json` | C3, C4 |
+| 2. Tool mới & test | Long | Viết ≥ 1 tool mới, `TOOL.md`, đăng ký trong `tools/__init__.py` + `tools.yaml`, ≥ 3 test/tool, `pytest` 0 failed, bảng B5a | `tools/<tên>/`, `tests/test_tools_todo.py` | C3 |
+| 3. Eval nhóm | Việt Anh | Viết đúng 10 case (5 single + 5 multi), ≥ 1 case route tới tool mới, chạy `--suite group`, bảng B3 | `data/eval_group.json` | C4 |
 | 4. UI, chat live & báo cáo | Chiêu | UI Streamlit + tunnel, 3 lượt chat live, Phần A trước showdown, ráp Phần B, `TEAM.md`, push/nộp | `app.py`, `requirements.txt`, `transcripts/`, `group_report.md` | C6, C7 |
 
 ## Cá nhân
