@@ -10,7 +10,7 @@
 
 - Tên nhóm: NhomABCD
 - Thành viên và phân công: xem [TEAM.md](../../TEAM.md)
-- Provider/model dùng cho v0–v5: `openai` (`gpt-4o-mini`)
+- Provider/model dùng cho v0–v7: `openai` (`gpt-4o-mini`)
 
 ## 2. Mục tiêu và cách tiếp cận — PHẦN A: Giới thiệu agent
 
@@ -62,7 +62,24 @@ Mở Cloudflare Tunnel trỏ vào cổng Streamlit (`cloudflared tunnel --url ht
 
 > Tóm tắt các thay đổi chính trong `starter_v0/artifacts/system_prompt.md` và `starter_v0/artifacts/tools.yaml`, và tool mới nhóm viết (tên, làm gì, khi nào agent nên gọi).
 
--
+**`system_prompt.md`** (bản cuối v7, `prompt_hash` `6db6739cf54f`):
+
+- **Bỏ 3 chỉ dẫn xấu cố ý của starter** (v1): "đoán thay vì hỏi, chọn tài khoản nổi tiếng, giả định URL", "gửi luôn cho nhanh" và "luôn làm một bước, một tool".
+- **Scope** (v1): yêu cầu ngoài research (toán, viết code) thì từ chối bằng text, không gọi tool. Câu "bạn là ai" thì trả lời thẳng.
+- **Routing** (v6): bảng quy tắc khi nào dùng `timeline` (một tài khoản cụ thể), `social_search` (theo chủ đề), `lookup` (web/tin tức), `fetch` (URL có sẵn), `papers` / `paper_text`, `verify_reference`, `policy`, `format`, `clarify`, `send`.
+- **Thiếu thông tin thì hỏi, không đoán** (v1): thiếu tài khoản hoặc URL thì `clarify(response_type="text")`.
+- **Ranh giới gửi** (v1, siết lại ở v4): yêu cầu gửi/đăng chưa xác nhận thì bước đầu **luôn** là `clarify(response_type="yes_no")`. Chỉ khi user trả lời có mới gọi `send(confirmed=true)`. Không dùng `send` để trả lời user.
+- **Nhiều bước** (v1): cho phép gọi nhiều tool khi request cần, ví dụ vừa web vừa tweet.
+
+**`tools.yaml`** (bản cuối v7, `tools_hash` `4e15d195a714`): mỗi tool có mô tả theo mẫu *làm gì, khi nào dùng, khi nào không dùng (và dùng tool nào thay), convention args*:
+
+- `clarify` (v2): `response_type` bắt buộc; `text` để hỏi thông tin thiếu, `yes_no` để xin xác nhận gửi, `choice` khi có phương án sẵn.
+- `send` (v2): chỉ gọi sau khi user trả lời có cho `clarify(yes_no)`; `confirmed=true` chỉ khi đã xác nhận rõ.
+- `timeline` (v4): chỉ cho tài khoản user nêu rõ; `screenname` không có `@`, không bao giờ là tên nền tảng ("Twitter"), không đoán.
+- `lookup` (v5, mô tả do Long viết): `query` chỉ gồm chủ đề, không thêm "news"/"today"; tin tức thì `topic="news"`; hôm nay = `day`, tuần này = `week`.
+- `social_search`, `fetch`, `format`, `policy`, `papers`, `paper_text` (v6): viết lại theo cùng mẫu. `social_search.search_type` thành bắt buộc (v7): `Latest` cho mới nhất, `Top` cho nổi bật.
+
+**Tool mới `verify_reference`** (Long, v3): kiểm tra DOI hoặc tiêu đề tài liệu học thuật qua metadata Crossref, trả về bản ghi và metadata trích dẫn hoặc danh sách ứng viên. Agent nên gọi khi user muốn xác minh một DOI/tiêu đề có tồn tại hay lấy thông tin trích dẫn. Không dùng để tìm paper theo chủ đề (`papers`) hay đọc nội dung (`paper_text`). Có 5 unit test với HTTP mock; case G03 của eval nhóm kiểm tra route tới tool này.
 
 ## 4. Kết quả — PHẦN B: Chi tiết và bằng chứng
 
@@ -80,13 +97,25 @@ Tất cả run dưới đây: provider `openai`, model `gpt-4o-mini`, suite `bas
 | v3 | `tools.yaml` (`5cc50d42da03`): thêm tool mới `verify_reference` | Thêm tool mới không làm giảm routing/args của các case base (base không có case nào cần tool này). | 0.90 | 0.95 (1.00 / 0.95 / 1.00) | `starter_v0/runs/v3_B_base_openai_20261110T193829691099.json` |
 | v4 | `system_prompt.md` (`b0b1cc1000eb`) + `tools.yaml` (`c8745f713dff`): rule gửi, `timeline` | (1) Rule gửi của v1 bắt "trình bày nội dung sẽ gửi", nên khi chưa có nội dung, model hỏi nội dung bằng `text` (R12). (2) Mô tả `timeline.screenname` quá sơ sài nên model điền tên nền tảng "Twitter" (R10). *Version này gộp 2 giả thuyết.* | 0.95 | 0.90 (1.00 / 0.90 / 1.00) | `starter_v0/runs/v4_B_base_openai_20261110T194933137985.json` |
 | v5 | `tools.yaml` (`a671973ddd4c`): `lookup` | Mô tả `lookup` không nêu convention query/topic/timeframe, nên model nhét "news" vào `query` và bỏ `topic="news"` (R03, R13). | 0.90 | **1.00** (1.00 / 1.00 / 1.00) | `starter_v0/runs/v5_B_base_openai_20261111T085803114637.json` |
+| v6 | `system_prompt.md` (`6db6739cf54f`) + `tools.yaml` (`d5ea2df2bf27`): mục Routing + 6 mô tả tool | Prompt chưa có rule routing, và 6 tool (`social_search`, `fetch`, `format`, `policy`, `papers`, `paper_text`) còn mô tả một dòng của starter, nên model thiếu hướng dẫn. Viết đầy đủ sẽ giữ base 20/20 và sửa G02 của eval nhóm (`social_search` thiếu `search_type="Latest"`). *Version này gộp prompt + tools, để đạt tiêu chí C2.* | 1.00 | 1.00 base; group 0.90 → 0.90 (G02 vẫn FAIL) | `starter_v0/runs/v6_B_base_openai_20261111T092030353316.json`, group: `v6_B_group_openai_20261111T092303331306.json` |
+| v7 | `tools.yaml` (`4e15d195a714`): `social_search.search_type` thành `required` | Mô tả v6 đã ghi "luôn truyền `search_type`", nhưng tham số có default `Latest` nên model vẫn bỏ trống (G02). Đưa vào `required`, như v2 đã làm với `clarify.response_type`, sẽ buộc model truyền rõ. | 1.00 base / 0.90 group | 0.95 base (M06 dao động, xem dưới); **group 1.00 (10/10)** | `starter_v0/runs/v7_B_base_openai_20261111T092529002036.json`, group: `v7_B_group_openai_20261111T092704075080.json` |
+
+**Eval nhóm trên cùng model** (`openai` / `gpt-4o-mini`, `eval_group.json`, 10 case). Run group của v4 trong B3 dùng OpenRouter nên không so trực tiếp được; ba run dưới đây dùng cùng model với v0–v7:
+
+| Version | case_acc | Case FAIL | Run File |
+|---|---:|---|---|
+| v5 | 0.90 | G02: `social_search(query="AI agent evaluation", limit=6)`, thiếu `search_type` | `starter_v0/runs/v5_B_group_openai_20261111T092139732111.json` |
+| v6 | 0.90 | G02 (giống v5) | `starter_v0/runs/v6_B_group_openai_20261111T092303331306.json` |
+| v7 | **1.00** | — | `starter_v0/runs/v7_B_group_openai_20261111T092704075080.json` |
+
+**Về M06 ở run base v7:** user nói "Bỏ Twitter, chuyển sang tìm trên web tin tức", nhưng agent gọi `lookup` rồi vẫn gọi thêm `social_search`. M06 PASS ở v1–v6. Nhóm chạy lại base v7 thêm 2 lần để kiểm tra, cả 2 lần đều 20/20. Vì vậy đây là dao động của model, không phải do thay đổi của v7 (hai run kiểm tra không đưa vào `runs/`). Đây là một ví dụ nữa cho thấy một lần chạy chưa đủ để kết luận.
 
 Nhận xét:
 
 - **v1 có tác động lớn nhất** (+0.20): 5/6 lỗi của v0 đến thẳng từ các chỉ dẫn xấu cố ý trong prompt starter.
 - **Model dao động giữa các lần chạy.** R10 PASS ở v1, FAIL ở v2, PASS ở v3, dù v1→v3 không có thay đổi nào đụng `timeline`. R03/R13 PASS ở v1–v3 nhưng FAIL ở v4 khi mô tả `lookup` không đổi. Vì vậy bước 0.90 → 0.95 ở v3 **không phải nhờ tool mới**, mà do R10 tình cờ PASS. Bước 0.95 → 0.90 ở v4 cũng không phải do v4 làm hỏng `lookup`.
 - **Bài học:** chỗ nào tool declaration còn mơ hồ (`timeline.screenname`, `lookup.query/topic`), kết quả sẽ không ổn định. Chỉ khi viết rõ convention vào mô tả tham số (v4, v5) thì các case đó mới PASS đều. Một lần 20/20 chưa đủ để kết luận ổn định; cần chạy lại cùng version để xác nhận.
-- **Về phương pháp:** v1, v2, v3, v5 mỗi version đúng một giả thuyết. v4 gộp hai thay đổi (prompt + `timeline`), nên không tách riêng được tác động của từng thay đổi trong run v4.
+- **Về phương pháp:** v1, v2, v3, v5, v7 mỗi version đúng một giả thuyết. v4 gộp hai thay đổi (prompt + `timeline`) và v6 gộp prompt + tools (để đạt tiêu chí C2), nên không tách riêng được tác động của từng thay đổi trong run v4 và v6.
 
 ### B2. Failure Analysis
 
@@ -198,10 +227,18 @@ Chi tiết đóng góp của từng thành viên nằm trong [TEAM.md](../../TEA
 
 ## 7. Hạn chế và hướng cải thiện — B6. Reflection
 
-- Fix nào thuộc `system_prompt.md`?
-- Fix nào thuộc `tools.yaml`?
-- Failure nào cần review thủ công thay vì chấm tự động?
-- Nếu có thêm một vòng, nhóm sẽ thử giả thuyết nào?
+- **Fix nào thuộc `system_prompt.md`?** Các quy tắc **hành vi** áp dụng cho mọi tool: phạm vi (từ chối toán/code, R08/R14), "hỏi thay vì đoán" (R10/R11), ranh giới gửi/xác nhận (R12), cho phép nhiều bước (R13), và bảng routing. Bằng chứng: v1 chỉ sửa prompt đã tăng 0.70 → 0.90, vì 5/6 lỗi của v0 đến từ chỉ dẫn xấu trong prompt. R12 cho thấy một câu chữ trong prompt ("showing what will be sent") có thể lấn át mô tả tool: sửa `tools.yaml` ở v2 không đủ, phải sửa prompt ở v4.
+- **Fix nào thuộc `tools.yaml`?** Các **convention của tham số**, tức là lúc model điền args: `clarify.response_type` (R11), `timeline.screenname` (R10), `lookup.query/topic/timeframe` (R03/R13), `social_search.search_type` (G02). Bài học rõ nhất: rule chung trong prompt ("thiếu tài khoản thì hỏi") không đủ mạnh khi mô tả tham số mơ hồ. Model vẫn điền `screenname="Twitter"` cho đến khi mô tả tham số cấm điều đó. Và với tham số có giá trị default, mô tả "luôn truyền rõ" vẫn không đủ (v6); phải đưa vào `required` (v2, v7).
+- **Failure nào cần review thủ công thay vì chấm tự động?**
+  - Các case chỉ kiểm tra tool call, không kiểm tra nội dung trả lời. Ví dụ R08/R14 chỉ chấm "không gọi tool", không chấm agent có thật sự từ chối lịch sự hay không. Tương tự, câu hỏi trong `clarify` có hỏi đúng ý không cần người đọc.
+  - So khớp chuỗi args quá chặt: `query="AI news"` và `query="AI"` có thể cho kết quả tìm kiếm gần giống nhau nhưng bị chấm FAIL.
+  - Kết quả dao động giữa các lần chạy (R10, R03/R13, M06): một lần FAIL hay một lần 20/20 đều không đủ để kết luận. Cần chạy lại nhiều lần và người đọc run JSON.
+  - Chất lượng kết quả thật của tool (tin tức đúng chưa, tóm tắt có bịa không) hoàn toàn nằm ngoài eval routing.
+- **Nếu có thêm một vòng, nhóm sẽ thử giả thuyết nào?**
+  - Chạy mỗi version 3 lần và báo cáo trung bình kèm độ lệch, thay vì một lần, để tách tác động thật khỏi dao động.
+  - Thêm rule "khi user bỏ/huỷ một nguồn (ví dụ 'bỏ Twitter'), không gọi lại tool đó" để xử lý M06 nếu nó còn dao động.
+  - Thử luồng gửi hai bước của Long ("có muốn soạn nháp không, rồi xác nhận nội dung cuối") như một version riêng, kèm case multi-turn đo đủ hai lần xác nhận.
+  - Chạy bản v7 trên model nhỏ (Ollama) để xem các mô tả dài có làm model nhỏ lạc hướng không (bonus B7).
 
 ## 8. Tài liệu tham khảo
 
