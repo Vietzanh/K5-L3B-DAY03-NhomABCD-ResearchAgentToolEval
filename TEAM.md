@@ -11,7 +11,7 @@
 
 | STT | Họ tên | MSSV | Email | GitHub | Vai trò |
 | --: | ------ | ---- | ----- | ------ | ------- |
-|   1 | Doan Sy Hung | 2A202603990 | hungizumi1210@gmail.com | https://github.com/hgmdz1210 | Prompt & Eval lead |
+|   1 | Đoàn Sỹ Hưng | 2A202603990 | hungizumi1210@gmail.com | https://github.com/hgmdz1210 | Prompt & Eval lead |
 |   2 | Long | <điền MSSV> | <điền email> | <điền GitHub> | Tool mới & test |
 |   3 | Trần Việt Anh | 2A202604029 | 26ai.anhtv2@vinuni.edu.vn | https://github.com/Vietzanh | Eval nhóm & Tool unit test |
 |   4 | Phạm Văn Chiêu | 2A202604033 | chieupham1011@gmail.com | https://github.com/pvchiu | UI, chat live & báo cáo |
@@ -20,7 +20,7 @@
 
 | Vai | Thành viên | Phụ trách | File chính | Điểm |
 | --- | ---------- | --------- | ---------- | ---- |
-| 1. Prompt & Eval lead | Hưng | Sửa prompt/tool declaration, chạy v1→v3, ghi `version_log.csv`, bảng B1 + B2 | `system_prompt.md`, `tools.yaml`, `runs/` | C1, C2, C3 |
+| 1. Prompt & Eval lead | Hưng | Sửa prompt/tool declaration, chạy v0→v5, ghi `version_log.csv`, bảng B1 + B2 | `system_prompt.md`, `tools.yaml`, `runs/` | C1, C2, C3 |
 | 2. Tool mới & test | Long | Viết ≥ 1 tool mới, `TOOL.md`, đăng ký trong `tools/__init__.py` + `tools.yaml`, ≥ 3 test/tool, `pytest` 0 failed, bảng B5a | `tools/<tên>/`, `tests/test_tools_todo.py` | C3 |
 | 3. Eval nhóm | Việt Anh | Viết đúng 10 case (5 single + 5 multi), ≥ 1 case route tới tool mới, chạy `--suite group`, bảng B3 | `data/eval_group.json` | C4 |
 | 4. UI, chat live & báo cáo | Chiêu | UI Streamlit + tunnel, 3 lượt chat live, Phần A trước showdown, ráp Phần B, `TEAM.md`, push/nộp | `app.py`, `requirements.txt`, `transcripts/`, `group_report.md` | C6, C7 |
@@ -50,6 +50,30 @@ Sao chép mục dưới đây cho từng thành viên.
 ### Bằng chứng
 
 -
+
+## DoanSyHung-2A202603990
+
+### Phần việc phụ trách
+
+- Vai 1 (Prompt & Eval lead): sửa `starter_v0/artifacts/system_prompt.md` và `starter_v0/artifacts/tools.yaml`, chạy base eval v0→v5, ghi `starter_v0/artifacts/version_log.csv`, viết bảng B1 + B2 trong `report/team/group_report.md`.
+
+### Đóng góp cụ thể
+
+- Setup CP1 với provider OpenAI (`gpt-4o-mini`): preflight pass, `pytest` xanh, chạy baseline v0 = 0.70 (14/20) và phân loại 6 case FAIL (`out_of_scope`, `missing_info`, `wrong_boundary`, `wrong_tool`).
+- v1 (`system_prompt.md`): bỏ 3 chỉ dẫn xấu của starter (đoán thay vì hỏi, gửi không xác nhận, ép một bước); thêm ranh giới cho ngoài phạm vi, `clarify` khi thiếu handle/URL, và xác nhận trước khi `send`. Kết quả 0.70 → 0.90.
+- v2 (`tools.yaml`): viết lại `clarify` (`response_type` bắt buộc, nghĩa của `text`/`yes_no`/`choice`) và `send` (chỉ gọi sau xác nhận `yes_no`). Sửa được R11.
+- v3: merge tool mới `verify_reference` của Long vào `main`, đo bằng base eval rằng tool mới không làm hỏng case cũ (0.95). Ghi rõ trong log rằng mức tăng là do dao động của R10, không phải nhờ tool.
+- v4: sửa rule gửi trong prompt (luôn `clarify(yes_no)` trước) và mô tả `timeline.screenname`. Sửa được R12, R10.
+- v5: đưa mô tả `lookup` (convention query/topic/timeframe, do Long viết) vào `tools.yaml`. Đạt **1.00 (20/20)**.
+- Phát hiện và xử lý lỗi `core.autocrlf` làm đổi `prompt_hash` dù nội dung không đổi; kiểm tra hash trước mỗi run để mỗi version chỉ khác đúng artifact đã ghi trong log.
+- Viết B1 (bảng v0–v5, giả thuyết, metric, run file, nhận xét về dao động) và B2 (phân tích 11 lượt FAIL qua các version, phân loại lỗi prompt và lỗi tool declaration).
+
+### Bằng chứng
+
+- Run JSON: `starter_v0/runs/v0_B_base_openai_20261110T181658629110.json`, `v1_..._20261110T190322024377.json`, `v2_..._20261110T191022732055.json`, `v3_..._20261110T193829691099.json`, `v4_..._20261110T194933137985.json`, `v5_B_base_openai_20261111T085803114637.json`.
+- Version log: `starter_v0/artifacts/version_log.csv` (v0–v5).
+- Commit: `62d409a` (v0), `1d1be28` (v1), `a8b1d00` (v2), `a9c8cda` (v3), `1ec845d` (v4), `d1fa954` (v5).
+- Báo cáo nhóm: `report/team/group_report.md` mục B1, B2.
 
 ## PhamVanChieu-2A202604033
 

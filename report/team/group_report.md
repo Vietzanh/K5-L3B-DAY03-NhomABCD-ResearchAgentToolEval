@@ -10,7 +10,7 @@
 
 - Tên nhóm: NhomABCD
 - Thành viên và phân công: xem [TEAM.md](../../TEAM.md)
-- Provider/model dùng cho v0–v3: `openai` (`gpt-4o-mini`)
+- Provider/model dùng cho v0–v5: `openai` (`gpt-4o-mini`)
 
 ## 2. Mục tiêu và cách tiếp cận — PHẦN A: Giới thiệu agent
 
@@ -70,20 +70,46 @@ Mở Cloudflare Tunnel trỏ vào cổng Streamlit (`cloudflared tunnel --url ht
 
 Lấy từ `starter_v0/artifacts/version_log.csv` và `starter_v0/runs/*.json`. Chỉ dùng run có `provider_error_cases == 0` và `measured_cases == total_cases`.
 
+Tất cả run dưới đây: provider `openai`, model `gpt-4o-mini`, suite `base` (20 case), `provider_error_cases = 0`, `measured_cases = 20`. Metric = `case_accuracy` (chi tiết routing / args / multiturn trong ngoặc). Hash là 12 ký tự đầu của `prompt_hash` / `tools_hash`.
+
 | Version | Changed Artifact | Hypothesis | Metric Before | Metric After | Run File |
 |---|---|---|---:|---:|---|
-| v0 | baseline |  |  |  |  |
-| v1 |  |  |  |  |  |
-| v2 |  |  |  |  |  |
-| v3 |  |  |  |  |  |
+| v0 | baseline (prompt `eb1c8179815b`, tools `e69bc53ed884`) | Đo hành vi của starter chưa sửa. | — | 0.70 (routing 0.75, args 0.70, multiturn 1.00) | `starter_v0/runs/v0_B_base_openai_20261110T181658629110.json` |
+| v1 | `system_prompt.md` (`e8f49e2218e7`) | Prompt starter bảo agent đoán thay vì hỏi, gửi không cần xác nhận và ép làm một bước, nên agent bịa handle/URL, gọi `send` cho cả câu ngoài phạm vi. Bỏ 3 chỉ dẫn xấu và thêm ranh giới (ngoài phạm vi thì từ chối, thiếu handle/URL thì `clarify`, gửi thì xác nhận trước, cho phép nhiều tool call) sẽ sửa R08, R10, R11, R12, R14. | 0.70 | 0.90 (1.00 / 0.90 / 1.00) | `starter_v0/runs/v1_B_base_openai_20261110T190322024377.json` |
+| v2 | `tools.yaml` (`fa61162d23a2`): `clarify`, `send` | Mô tả `clarify`/`send` không nêu convention `response_type` và ranh giới xác nhận, nên model bỏ trống `response_type` (R11) hoặc hỏi nội dung bằng `text` thay vì `yes_no` (R12). | 0.90 | 0.90 (0.95 / 0.90 / 1.00) | `starter_v0/runs/v2_B_base_openai_20261110T191022732055.json` |
+| v3 | `tools.yaml` (`5cc50d42da03`): thêm tool mới `verify_reference` | Thêm tool mới không làm giảm routing/args của các case base (base không có case nào cần tool này). | 0.90 | 0.95 (1.00 / 0.95 / 1.00) | `starter_v0/runs/v3_B_base_openai_20261110T193829691099.json` |
+| v4 | `system_prompt.md` (`b0b1cc1000eb`) + `tools.yaml` (`c8745f713dff`): rule gửi, `timeline` | (1) Rule gửi của v1 bắt "trình bày nội dung sẽ gửi", nên khi chưa có nội dung, model hỏi nội dung bằng `text` (R12). (2) Mô tả `timeline.screenname` quá sơ sài nên model điền tên nền tảng "Twitter" (R10). *Version này gộp 2 giả thuyết.* | 0.95 | 0.90 (1.00 / 0.90 / 1.00) | `starter_v0/runs/v4_B_base_openai_20261110T194933137985.json` |
+| v5 | `tools.yaml` (`a671973ddd4c`): `lookup` | Mô tả `lookup` không nêu convention query/topic/timeframe, nên model nhét "news" vào `query` và bỏ `topic="news"` (R03, R13). | 0.90 | **1.00** (1.00 / 1.00 / 1.00) | `starter_v0/runs/v5_B_base_openai_20261111T085803114637.json` |
+
+Nhận xét:
+
+- **v1 có tác động lớn nhất** (+0.20): 5/6 lỗi của v0 đến thẳng từ các chỉ dẫn xấu cố ý trong prompt starter.
+- **Model dao động giữa các lần chạy.** R10 PASS ở v1, FAIL ở v2, PASS ở v3, dù v1→v3 không có thay đổi nào đụng `timeline`. R03/R13 PASS ở v1–v3 nhưng FAIL ở v4 khi mô tả `lookup` không đổi. Vì vậy bước 0.90 → 0.95 ở v3 **không phải nhờ tool mới**, mà do R10 tình cờ PASS. Bước 0.95 → 0.90 ở v4 cũng không phải do v4 làm hỏng `lookup`.
+- **Bài học:** chỗ nào tool declaration còn mơ hồ (`timeline.screenname`, `lookup.query/topic`), kết quả sẽ không ổn định. Chỉ khi viết rõ convention vào mô tả tham số (v4, v5) thì các case đó mới PASS đều. Một lần 20/20 chưa đủ để kết luận ổn định; cần chạy lại cùng version để xác nhận.
+- **Về phương pháp:** v1, v2, v3, v5 mỗi version đúng một giả thuyết. v4 gộp hai thay đổi (prompt + `timeline`), nên không tách riêng được tác động của từng thay đổi trong run v4.
 
 ### B2. Failure Analysis
 
-Lấy từ `results[*].result.failures` trong run JSON.
+Lấy từ `results[*].result.failures` trong run JSON. Bảng gồm 6 case FAIL của baseline v0 và các case FAIL xuất hiện ở các version sau.
 
 | Case ID | Failure Type | Actual Tool Calls | What Failed | Fix |
 |---|---|---|---|---|
-|  |  |  |  |  |
+| R08_out_of_scope (v0) | `out_of_scope` | `send(text="Nguyên hàm của x^2 là x^3/3 + C ...")` | Câu toán ngoài phạm vi; expected no tool + từ chối. Agent dùng `send` để trả lời. | v1: thêm mục Scope, ngoài research thì từ chối bằng text, không gọi tool; cấm dùng `send` để trả lời. PASS từ v1. |
+| R14_out_of_scope_coding (v0) | `out_of_scope` | `send(text="Dưới đây là một hàm Python tính số Fibonacci ...")` | Yêu cầu viết code ngoài phạm vi; agent viết code rồi gọi `send`. | v1 (cùng fix với R08). PASS từ v1. |
+| R10_missing_handle (v0) | `missing_info` | `timeline(screenname="sama")` | Không nói tài khoản nào; expected `clarify(text)`. Prompt starter bảo "chọn tài khoản nổi tiếng như Sam Altman". | v1: bỏ chỉ dẫn đoán, thêm rule "thiếu tài khoản thì `clarify`". PASS ở v1. |
+| R11_missing_url (v0) | `missing_info` | `fetch(url="https://example.com/article")` | "Bài viết này" không có URL; agent bịa URL theo chỉ dẫn "assume a likely URL". | v1: thiếu URL thì `clarify(text)`. Agent chuyển sang `clarify` nhưng vẫn FAIL arg (dòng R11 v1 bên dưới). |
+| R12_confirm_before_send (v0) | `wrong_boundary` | `send(text="Bản tin này đã được đăng lên Telegram.")` | Gửi ngay không xin xác nhận, theo chỉ dẫn "just go ahead and do it". | v1: bỏ chỉ dẫn, thêm "phải xác nhận trước khi gửi". Agent chuyển sang `clarify` nhưng sai `response_type` (dòng R12 v1–v3 bên dưới). |
+| R13_parallel_web_and_tweets (v0) | `wrong_tool` | `lookup(query="AI news", timeframe="day")` + `social_search(query="AI", search_type="Latest")` | `lookup` thừa chữ "news" trong `query` và thiếu `topic="news"`. | PASS ở v1–v3 (dao động), FAIL lại ở v4; sửa gốc ở v5 (xem dòng R13 v4). |
+| R11_missing_url (v1) | `missing_info` | `clarify(question="Bạn vui lòng cung cấp URL ...")`, không có `response_type` | Đúng tool nhưng thiếu `response_type="text"`, vì tham số này không bắt buộc và mô tả chỉ ghi "Kiểu trả lời". | v2: `response_type` thành `required`, mô tả rõ `text` / `yes_no` / `choice`. PASS từ v2. |
+| R12_confirm_before_send (v1–v3) | `wrong_boundary` | `clarify(question="Bạn có thể cung cấp nội dung cụ thể mà bạn muốn đăng ...", response_type="text")` | Hỏi nội dung bằng `text` thay vì xin xác nhận bằng `yes_no`. Sửa mô tả tool ở v2 không đủ, vì prompt v1 vẫn ghi "showing what will be sent", mà câu hỏi không có nội dung để trình bày. | v4: sửa rule trong prompt, yêu cầu gửi chưa xác nhận thì bước đầu **luôn** là `clarify(yes_no)`, kể cả khi nội dung mơ hồ. PASS từ v4. |
+| R10_missing_handle (v2) | `missing_info` | `timeline(screenname="Twitter")` | Hồi quy dù v2 không đụng `timeline`: model điền tên nền tảng vào `screenname`, vì mô tả chỉ ghi "Tên tài khoản". Rule trong prompt không đủ mạnh lúc model điền args. | v4: mô tả `timeline` chỉ dùng cho tài khoản user nêu rõ; `screenname` không có `@`, không bao giờ là tên nền tảng, không đoán; thiếu thì `clarify`. PASS từ v4. |
+| R03_web_news_routing (v4) | `wrong_tool` | `lookup(query="AI news", topic="news", timeframe="day")` | Đúng tool và `topic`, nhưng `query` thừa "news" (expected `query="AI"`). | v5: mô tả `lookup` ghi query chỉ gồm chủ đề, không thêm "news"/"today"; tin tức thì `topic="news"`; hôm nay = `day`, tuần này = `week`. PASS ở v5. |
+| R13_parallel_web_and_tweets (v4) | `wrong_tool` | `lookup(query="AI news", timeframe="day")` + `social_search(query="AI")` | Giống v0: `query` thừa "news" và thiếu `topic="news"`. | v5 (cùng fix với R03). PASS ở v5. |
+
+Phân loại theo nơi sửa:
+
+- **Lỗi do prompt** (`system_prompt.md`): R08, R14 (phạm vi), R10, R11 (đoán thay vì hỏi), R12 (ranh giới gửi). Đều do chỉ dẫn xấu cố ý của starter hoặc rule chưa đủ chặt.
+- **Lỗi do tool declaration** (`tools.yaml`): R11 (`response_type`), R10 (`screenname`), R03, R13 (`lookup` query/topic). Đều do mô tả tham số quá sơ sài, nên model tự điền theo đoán.
 
 ### B3. Team Eval Cases
 
