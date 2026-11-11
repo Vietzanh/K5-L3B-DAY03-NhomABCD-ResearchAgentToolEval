@@ -114,6 +114,7 @@ Sao chép mục dưới đây cho từng thành viên.
   - Evaluation run v6: v6_B_group_openrouter_20261111T091405140926.
   - Evaluation run v7: v7_B_group_openrouter_20261111T094308640312.
   - Báo cáo nhóm report/team/group_report.md mục (B3. Team Eval Cases)
+  - Commit: a36fa6410e4d6262409a79abfb62e21c6a744630, d30d43e750b9844fe2a947eed4243e2c73aec76d, 9b2f5ffc1cff9485749f37edad0869b8585b83f2, 3624edb9f03be7906249adb37d0edeb5a0ad2ddf, 2fc89a6364c6fb5fac7f22bd3daab0929d8df3d5
 
 ## Trần Bảo Long - 2A202604012
  ### Phần việc phụ trách
