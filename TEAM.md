@@ -116,17 +116,21 @@ Sao chép mục dưới đây cho từng thành viên.
 - Kiểm tra các tool mới: Bổ sung các trường hợp kiểm tra khả năng routing đến verify_reference, policy, papers và paper_text, giúp đánh giá mức độ tích hợp các chức năng nghiên cứu mới của nhóm.
 - Kiểm tra xử lý hội thoại nhiều lượt: Thiết kế các tình huống yêu cầu agent kế thừa chủ đề, cập nhật bộ lọc tìm kiếm, thay đổi số lượng kết quả, duy trì phạm vi truy vấn và xử lý yêu cầu hủy hành động gửi Telegram.
 - Rà soát expected output: Đối chiếu từng test case với khai báo tool trong tools.yaml, chuẩn hóa expected tool calls và arguments để đảm bảo mỗi case kiểm tra được hành vi cụ thể, hạn chế các trường hợp pass dù agent truyền thiếu tham số quan trọng.
-- Chạy thử nghiệm và phân tích kết quả: Thực hiện evaluation với prompt v4 , thu được kết quả:
-  - Case accuracy: 80% (8/10 cases passed).
-  - Tool routing accuracy: 100%.
-  - Argument accuracy: 80%.
-  - Multi-turn accuracy: 100%.
-- Phân tích lỗi:
-  - G02: Agent gọi đúng social_search, truyền đúng query và limit nhưng không truyền tường minh search_type="Latest", thay vào đó phụ thuộc vào giá trị mặc định của tool.
-  - G05: Agent gọi đúng policy nhưng chọn sai policy_area="external_publishing" thay vì tool_usage, khiến truy vấn policy trả về danh sách rỗng.
+- Chạy thử nghiệm và phân tích kết quả: Thực hiện evaluation trên các phiên bản prompt , thu được kết quả:
+  - Prompt v4: Case accuracy đạt 90% (9/10 cases passed), Prompt v6: Case accuracy đạt 80% (8/10 cases passed)
+  - Prompt v7: Case accuracy đạt 100% (10/10 cases passed).
+    - Case accuracy: 100%.
+    - Tool routing accuracy: 100%.
+    - Argument accuracy: 10%.
+    - Multi-turn accuracy: 100%.
+- Phân tích lỗi qua các phiên bản:
+  - G02 ở v4 và v6: Agent gọi đúng social_search, truyền đúng query và limit nhưng không truyền tường minh search_type="Latest", thay vào đó phụ thuộc vào giá trị mặc định của tool.
+  - G05 ở v6: Agent gọi đúng policy nhưng chọn sai policy_area="external_publishing" thay vì tool_usage, khiến truy vấn policy trả về danh sách rỗng.
 
 ### Bằng chứng
 - File/commit/PR:
   - starter_v0/data/eval_group.json: Bộ 10 test case.
-  - Evaluation run v5: v5_B_group_openrouter_20261111T091405140926.
+  - Evaluation run v4: v4_B_group_openrouter_20261111T081004535910.
+  - Evaluation run v6: v6_B_group_openrouter_20261111T091405140926.
+  - Evaluation run v7: v7_B_group_openrouter_20261111T094308640312.
   - Báo cáo nhóm report/team/group_report.md mục (B3. Team Eval Cases)
