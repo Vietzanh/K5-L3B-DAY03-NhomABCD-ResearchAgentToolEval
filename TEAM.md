@@ -75,7 +75,7 @@ Sao chép mục dưới đây cho từng thành viên.
 
 - Run JSON: `starter_v0/runs/v0_B_base_openai_20261110T181658629110.json`, `v1_..._20261110T190322024377.json`, `v2_..._20261110T191022732055.json`, `v3_..._20261110T193829691099.json`, `v4_..._20261110T194933137985.json`, `v5_B_base_openai_20261111T085803114637.json`, `v6_B_base_openai_20261111T092030353316.json`, `v7_B_base_openai_20261111T092529002036.json`; group (OpenAI): `v5/v6/v7_B_group_openai_*.json`.
 - Version log: `starter_v0/artifacts/version_log.csv` (v0–v7).
-- Commit: `62d409a` (v0), `1d1be28` (v1), `a8b1d00` (v2), `a9c8cda` (v3), `1ec845d` (v4), `d1fa954` (v5), `fabe401` (v6), `5688df0` (v7).
+- Commit: `62d409a` (v0), `1d1be28` (v1), `a8b1d00` (v2), `a9c8cda` (v3), `1ec845d` (v4), `d1fa954` (v5), `e02142c` (v6), `fe451fc` (v7).
 - Báo cáo nhóm: `report/team/group_report.md` mục 3, B1, B2, B6.
 - Báo cáo cá nhân: `report/team/2A202603990_DoanSyHung.md`.
 
