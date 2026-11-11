@@ -5,7 +5,7 @@
 - Tên nhóm: NhomABCD
 - Lớp: L3B
 - Repo nhóm: `K5-L3B-DAY03-NhomABCD-ResearchAgentToolEval`
-- URL repo, nhánh nộp, commit chốt: https://github.com/Vietzanh/K5-L3B-DAY03-NhomABCD-ResearchAgentToolEval · nhánh `main` · commit chốt: (điền khi nộp)
+- URL repo: https://github.com/Vietzanh/K5-L3B-DAY03-NhomABCD-ResearchAgentToolEval · nhánh `main` · commit chốt: fd00ea2cd31f290347a464f5613a4958a07aa32e
 
 ## Thành viên
 
