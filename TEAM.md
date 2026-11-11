@@ -113,15 +113,16 @@ Sao chép mục dưới đây cho từng thành viên.
 - Kiểm tra xử lý hội thoại nhiều lượt: Thiết kế các tình huống yêu cầu agent kế thừa chủ đề, cập nhật bộ lọc tìm kiếm, thay đổi số lượng kết quả, duy trì phạm vi truy vấn và xử lý yêu cầu hủy hành động gửi Telegram.
 - Rà soát expected output: Đối chiếu từng test case với khai báo tool trong tools.yaml, chuẩn hóa expected tool calls và arguments để đảm bảo mỗi case kiểm tra được hành vi cụ thể, hạn chế các trường hợp pass dù agent truyền thiếu tham số quan trọng.
 - Chạy thử nghiệm và phân tích kết quả: Thực hiện evaluation với prompt v4 , thu được kết quả:
-  - Case accuracy: 90% (9/10 cases passed).
+  - Case accuracy: 80% (8/10 cases passed).
   - Tool routing accuracy: 100%.
-  - Argument accuracy: 90%.
+  - Argument accuracy: 80%.
   - Multi-turn accuracy: 100%.
-- Phân tích lỗi: Xác định G02 là test case duy nhất thất bại. Agent gọi đúng social_search, truyền đúng query và limit, nhưng không truyền tường minh search_type="Latest" mà dựa vào giá trị mặc định của tool. Từ đó nhận diện vấn đề trong việc ánh xạ đầy đủ intent của người dùng sang arguments.
+- Phân tích lỗi:
+  - G02: Agent gọi đúng social_search, truyền đúng query và limit nhưng không truyền tường minh search_type="Latest", thay vào đó phụ thuộc vào giá trị mặc định của tool.
+  - G05: Agent gọi đúng policy nhưng chọn sai policy_area="external_publishing" thay vì tool_usage, khiến truy vấn policy trả về danh sách rỗng.
 
 ### Bằng chứng
-
-- File commit:
-  - starter_v0/data/eval_group.json: Bộ 10 test case nhóm.
-  - Evaluation run: v4_B_group_openrouter_20261111T081004535910.
-  - Báo cáo nhóm `report/team/group_report.md` mục B3. Team Eval Cases
+- File/commit/PR:
+  - starter_v0/data/eval_group.json: Bộ 10 test case.
+  - Evaluation run v5: v5_B_group_openrouter_20261111T091405140926.
+  - Báo cáo nhóm report/team/group_report.md mục (B3. Team Eval Cases)
