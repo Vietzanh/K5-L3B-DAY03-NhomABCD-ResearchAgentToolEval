@@ -62,14 +62,20 @@ tools:
       required: [query]
 
   - name: lookup
-    description: "Tra cứu thông tin trên internet."
+    description: >-
+      Tìm thông tin trên web bằng Tavily. Dùng cho câu hỏi web/general hoặc tin tức;
+      không dùng cho bài đăng/tweet (dùng social_search hoặc timeline), URL cụ thể
+      cần đọc (dùng fetch), hay bài arXiv (dùng papers). Giữ query ngắn và chỉ gồm
+      chủ đề/từ khóa người dùng hỏi: ví dụ tin AI hôm nay thì query="AI",
+      topic="news", timeframe="day"; không thêm "news", "today" hoặc khoảng
+      thời gian vào query vì các ý đó thuộc topic/timeframe.
     parameters:
       type: object
       properties:
-        query: {type: string, default: "", description: "Truy vấn"}
-        topic: {type: string, enum: [general, news], default: "general", description: "Phân loại"}
-        timeframe: {type: string, enum: [day, week, month, year], default: "week", description: "Khoảng thời gian"}
-        max_results: {type: integer, default: 5, description: "Số kết quả"}
+        query: {type: string, default: "", description: "Chủ đề/từ khóa ngắn, không thêm từ chỉ loại tin hay thời gian; ví dụ 'AI' hoặc 'công nghệ'."}
+        topic: {type: string, enum: [general, news], default: "general", description: "Dùng news khi hỏi tin tức/thời sự; nếu không thì general."}
+        timeframe: {type: string, enum: [day, week, month, year], default: "week", description: "Khoảng thời gian cho tin tức: hôm nay=day, tuần này=week, tháng này=month, năm nay=year. Không đưa thời gian vào query."}
+        max_results: {type: integer, default: 5, description: "Số kết quả web muốn lấy."}
       required: [query]
 
   - name: fetch
