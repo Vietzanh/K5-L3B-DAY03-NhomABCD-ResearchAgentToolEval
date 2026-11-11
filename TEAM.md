@@ -16,15 +16,6 @@
 |   3 | Trần Việt Anh | 2A202604029 | 26ai.anhtv2@vinuni.edu.vn | https://github.com/Vietzanh | Eval nhóm & Tool unit test |
 |   4 | Phạm Văn Chiêu | 2A202604033 | chieupham1011@gmail.com | https://github.com/pvchiu | UI, chat live & báo cáo |
 
-## Chia việc
-
-| Vai | Thành viên | Phụ trách | File chính | Điểm |
-| --- | ---------- | --------- | ---------- | ---- |
-| 1. Prompt & Eval lead | Hưng | Sửa prompt/tool declaration, chạy v0→v7, ghi `version_log.csv`, bảng B1 + B2, mục 3 + B6 | `system_prompt.md`, `tools.yaml`, `runs/` | C1, C2, C3 |
-| 2. Tool mới & test | Long | Viết ≥ 1 tool mới, `TOOL.md`, đăng ký trong `tools/__init__.py` + `tools.yaml`, ≥ 3 test/tool, `pytest` 0 failed, bảng B5a | `tools/<tên>/`, `tests/test_tools_todo.py` | C3 |
-| 3. Eval nhóm | Việt Anh | Viết đúng 10 case (5 single + 5 multi), ≥ 1 case route tới tool mới, chạy `--suite group`, bảng B3 | `data/eval_group.json` | C4 |
-| 4. UI, chat live & báo cáo | Chiêu | UI Streamlit + tunnel, 3 lượt chat live, Phần A trước showdown, ráp Phần B, `TEAM.md`, push/nộp | `app.py`, `requirements.txt`, `transcripts/`, `group_report.md` | C6, C7 |
-
 ## Cá nhân
 
 Mỗi thành viên đồng thời tạo một báo cáo riêng trong `report/` theo dạng:
@@ -37,19 +28,7 @@ Ví dụ: `report/team/20241234_NguyenVanAn.md`.
 
 Sao chép mục dưới đây cho từng thành viên.
 
-## HoVaTen-MSSV
 
-### Phần việc phụ trách
-
--
-
-### Đóng góp cụ thể
-
--
-
-### Bằng chứng
-
--
 
 ## DoanSyHung-2A202603990
 
