@@ -91,7 +91,26 @@ Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn
 
 | Case ID | What It Tests | Expected Tool/Behavior | Result |
 |---|---|---|---|
-|  |  |  |  |
+| G01_timeline_handle_normalization | Chuẩn hóa Twitter/X handle bằng cách loại bỏ ký tự @ và trích xuất đúng số lượng bài đăng. | timeline(screenname="karpathy", limit=7) | PASS
+ Gọi đúng tool, truyền đúng handle và limit. |
+| G02_social_search_latest_limit | Tìm bài đăng theo chủ đề, phân biệt với truy vấn theo tài khoản; lựa chọn Latest và trích đúng số lượng. | social_search(query="AI agent evaluation", search_type="Latest", limit=6) | FAIL
+ Gọi đúng tool, query và limit nhưng thiếu tham số search_type="Latest" trong tool call. |
+| G03_verify_reference_crossref | Xác minh tài liệu học thuật bằng tiêu đề trong metadata Crossref, không nhầm với tìm kiếm hoặc đọc paper. | verify_reference(reference="Attention Is All You Need") | PASS
+ Route đúng tool mới verify_reference và truyền đúng reference. |
+| G04_format_explicit_items_as_bullets | Nhận diện dữ liệu đã được cung cấp sẵn và sử dụng tool format thay vì tìm kiếm thêm thông tin. | format(items=[...], template="bullets", headline="AI Research") | PASS
+ Gọi đúng tool, truyền chính xác dữ liệu và template. |
+| G05_policy_tool_usage | Tra cứu quy định nội bộ về sử dụng tool bên ngoài, phân biệt policy search với web search. | policy(query=..., policy_area="tool_usage") | PASS
+ Gọi đúng tool mới policy, chọn đúng policy area và truy xuất được tài liệu liên quan. |
+| G06_multiturn_social_search_update_filters | Kế thừa chủ đề từ các lượt trước, cập nhật loại sắp xếp từ Top sang Latest và thay đổi số lượng kết quả. | social_search(query="OpenAI", search_type="Latest", limit=4) | PASS
+ Giữ đúng query, cập nhật chính xác search_type và limit. |
+| G07_multiturn_lookup_keep_general_scope | Thu hẹp chủ đề tìm kiếm qua nhiều lượt nhưng vẫn giữ phạm vi general, không tự chuyển sang news. | lookup(query="ứng dụng quantum computing trong y tế", topic="general") | PASS
+ Giữ đúng topic và cập nhật query theo yêu cầu mới nhất. |
+| G08_multiturn_papers_sort_and_limit | Kế thừa chủ đề tìm kiếm paper, cập nhật số lượng và lựa chọn sắp xếp theo ngày cập nhật gần nhất. | papers(query="multimodal RAG", max_results=3, sort_by="lastUpdatedDate") | PASS
+ Gọi đúng tool mới papers, truyền đủ arguments và trả về 3 kết quả. |
+| G09_multiturn_cancel_telegram_send | Xử lý yêu cầu hủy hành động publish, không tiếp tục gửi Telegram sau khi người dùng rút lại yêu cầu. | Không gọi tool (no_tool=true); phản hồi xác nhận đã hủy. | PASS
+ Không gọi send, xác nhận yêu cầu đã được hủy. |
+| G10_multiturn_paper_text_update_pages | Kế thừa arXiv ID và cập nhật số trang cần trích xuất từ 5 xuống 3 qua nhiều lượt. | paper_text(arxiv_url="2401.12345", max_pages=3) | PASS
+ Giữ đúng arXiv ID, cập nhật số trang và trích xuất đúng 3 trang. |
 
 ### B4. Live Chat Evidence
 
