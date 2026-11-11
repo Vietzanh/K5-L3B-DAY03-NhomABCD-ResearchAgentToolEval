@@ -32,7 +32,7 @@ streamlit run app.py
 
 Mở Cloudflare Tunnel trỏ vào cổng Streamlit (`cloudflared tunnel --url http://localhost:8501`):
 
-> URL: *(dán link `https://*.trycloudflare.com` khi bật `cloudflared tunnel --url http://localhost:8501` lúc showdown/chấm bài)*
+> URL: https://meals-widescreen-seeking-oil.trycloudflare.com *(Cloudflare Quick Tunnel trỏ về `http://localhost:8501` — hoạt động khi đang bật phiên `streamlit run app.py` + `cloudflared`; kiểm tra `HTTP 200`)*
 
 ### A2. Tool agent có
 
@@ -159,11 +159,16 @@ Liệt kê đúng 10 case trong `starter_v0/data/eval_group.json` (5 single turn
 
 ### B4. Live Chat Evidence
 
-Lấy từ `starter_v0/transcripts/*.transcript.json`.
+Lấy từ `starter_v0/transcripts/ui_v7_openai_20261111T103408555020.transcript.json` (chạy trực tiếp qua giao diện Streamlit + Cloudflare Tunnel với `openai` / `gpt-4o-mini`, `version: v7`, `tools_hash: 4e15d195a714`, `prompt_hash` trên đĩa CRLF `3454624b7541` khớp nội dung LF `6db6739cf54f` của `v7`).
 
 | Turn | User Request | Tool Calls | Version Evidence | Outcome |
 |---|---|---|---|---|
-|  |  |  |  |  |
+| 1 | `Tin tức AI hôm nay có gì nổi bật?` | `lookup(query="AI", topic="news", timeframe="day")` | `v7` (`4e15d195a714`) | Trả về 5 kết quả tin AI thực tế và tổng hợp kèm nguồn trích dẫn. |
+| 2 | `Kiểm tra DOI 10.1038/s41586-021-03819-2 trên Crossref giúp mình` | `verify_reference(reference="10.1038/s41586-021-03819-2")` | `v7` (`4e15d195a714`) | Route đúng tool mới của nhóm; Crossref trả về `found=true` (AlphaFold, John Jumper). |
+| 3 | `Tóm tắt 5 tweet mới nhất giúp mình` | `clarify(response_type="text")` | `v7` (`4e15d195a714`) | Đạt `missing_info`: dừng ở `waiting_for_user`, hỏi rõ tài khoản thay vì tự đoán handle. |
+| 4 | `Của tài khoản @karpathy nhé` | `timeline(screenname="karpathy", limit=5)` | `v7` (`4e15d195a714`) | Kế thừa ngữ cảnh lượt 3, tự chuẩn hóa bỏ `@`, trả về 5 tweet mới nhất của `@karpathy`. |
+| 5 | `Đăng bản tin này lên Telegram giúp mình` | `clarify(response_type="yes_no")` | `v7` (`4e15d195a714`) | Đạt boundary `send`: dừng ở `waiting_for_user`, hiển thị nút xác nhận Có/Không trước khi gửi. |
+| 6 | `Không, hủy giúp mình nhé.` | *(không gọi tool)* | `v7` (`4e15d195a714`) | Tôn trọng quyết định từ chối của người dùng, không gọi `send`, xác nhận đã hủy. |
 
 ### B5a. Required Evidence — Tool mới, unit test, UI
 
@@ -171,7 +176,7 @@ Lấy từ `starter_v0/transcripts/*.transcript.json`.
 |---|---|---|---|
 | Tool mới (`tools/<tên>/`) |  |  |  |
 | Unit test tool mới (≥ 3 test/tool) | `pytest` output (0 failed) |  |  |
-| UI (lệnh chạy + link dùng thử) | `starter_v0/app.py`, `starter_v0/requirements.txt` (lệnh: `streamlit run app.py`; link tunnel cập nhật khi mở `cloudflared` lúc demo) | Đọc động `system_prompt.md` + `tools.yaml` (hiển thị đủ 11 tools gồm `verify_reference`), hỗ trợ đổi qua lại các snapshot Git `v0`–`v4`, đa lượt `run_model_tool_loop`, nút quick-reply `clarify` (`yes_no`/`choice`), tự lưu & tải transcript JSON; `AppTest` + `pytest` (`72 passed, 14 skipped`) đều xanh | Hiển thị trung thực lỗi tool/provider (`st.error` + tự mở expander); không dùng `unsafe_allow_html` với nội dung web; tách `untrusted_text` của `policy`; bảo vệ `send` bằng `needs_confirmation`; không commit `.env` |
+| UI (lệnh chạy + link dùng thử) | `starter_v0/app.py`, `starter_v0/requirements.txt` (lệnh: `streamlit run app.py`; link dùng thử: https://meals-widescreen-seeking-oil.trycloudflare.com) | Đọc động `system_prompt.md` + `tools.yaml` (hiển thị đủ 11 tools gồm `verify_reference`), hỗ trợ đổi qua lại các snapshot Git `v0`–`v7` + `Current`, đa lượt `run_model_tool_loop`, nút quick-reply `clarify` (`yes_no`/`choice`), tự lưu & tải transcript JSON; `AppTest` + `pytest` (`72 passed, 14 skipped`) đều xanh | Hiển thị trung thực lỗi tool/provider (`st.error` + tự mở expander); không dùng `unsafe_allow_html` với nội dung web; tách `untrusted_text` của `policy`; bảo vệ `send` bằng `needs_confirmation`; không commit `.env` |
 
 Tool unit tests: số test đã viết, và một ví dụ lỗi mà unit test bắt được nhưng eval không bắt được.
 

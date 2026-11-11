@@ -88,17 +88,18 @@ Sao chép mục dưới đây cho từng thành viên.
 
 ### Đóng góp cụ thể
 
-- Thiết kế và xây dựng giao diện web Streamlit (`starter_v0/app.py`): đọc động `system_prompt.md` + `tools.yaml`, hỗ trợ chuyển đổi qua lại trực tiếp giữa các snapshot Git (`v0`–`v4`) và bản trên đĩa (`Current`), tích hợp `run_model_tool_loop` (`chat.py`), hiển thị minh bạch tool calls & lỗi tool (không che lỗi), nút tương tác `clarify` (`yes_no`/`choice`), câu hỏi mẫu Showdown, tự động lưu & tải transcript JSON.
-- Cập nhật `starter_v0/requirements.txt` (`streamlit>=1.50.0`) và kiểm thử cục bộ (`AppTest` đủ các version `v0`–`v4`, HTTP 200, `pytest` `72 passed, 14 skipped`, `0 failed`).
-- Hoàn thiện Phần A (`A1`–`A3` gồm tool mới `verify_reference`), mục UI ở `B5a` và mục `5` trong `report/team/group_report.md`; hoàn thiện báo cáo cá nhân `report/team/2A202604033_PhamVanChieu.md`.
-- *(Còn phiên chat live ≥ 3 lượt trên bản chốt mới nhất để điền `B4`, mở link Cloudflare Tunnel công khai và ráp Phần B cùng nhóm để chốt nộp bài.)*
+- Thiết kế và xây dựng giao diện web Streamlit (`starter_v0/app.py`): đọc động `system_prompt.md` + `tools.yaml`, hỗ trợ chuyển đổi qua lại trực tiếp giữa các snapshot Git (`v0`–`v7`) và bản trên đĩa (`Current`), tích hợp `run_model_tool_loop` (`chat.py`), hiển thị minh bạch tool calls & lỗi tool (không che lỗi), nút tương tác `clarify` (`yes_no`/`choice`), câu hỏi mẫu Showdown, tự động lưu & tải transcript JSON.
+- Cập nhật `starter_v0/requirements.txt` (`streamlit>=1.50.0`), triển khai link dùng thử Cloudflare Tunnel (`https://meals-widescreen-seeking-oil.trycloudflare.com`), kiểm thử cục bộ (`AppTest` đủ cả 9 lựa chọn `Current` + `v0`–`v7`, `HTTP 200`, `pytest` `72 passed, 14 skipped`, `0 failed`).
+- Hoàn thiện Phần A (`A1`–`A3` gồm tool mới `verify_reference`), bảng `B4` (6 lượt chat live trên `v7` qua UI/tunnel), mục UI ở `B5a` và mục `5` trong `report/team/group_report.md`; hoàn thiện báo cáo cá nhân `report/team/2A202604033_PhamVanChieu.md`.
+- Thực hiện phiên chat live 6 lượt trên bản `v7` (`openai/gpt-4o-mini`) qua UI & Cloudflare Tunnel: `lookup` (tin AI), `verify_reference` (DOI Crossref), `clarify(text)` $\rightarrow$ bổ sung `@karpathy` (`timeline`), và `clarify(yes_no)` $\rightarrow$ hủy `send` an toàn; lưu tại `starter_v0/transcripts/ui_v7_openai_20261111T103408555020.transcript.json`.
 
 ### Bằng chứng
 
 - Báo cáo cá nhân: `report/team/2A202604033_PhamVanChieu.md`
 - Code, dependency UI & bằng chứng lỗi provider: `starter_v0/app.py`, `starter_v0/requirements.txt`, `starter_v0/runs/v0_B_base_gemini_20261110T181044880645.json`
-- Báo cáo nhóm (Phần A, B5a UI, Mục 5): `report/team/group_report.md`
-- Transcript live bản chốt (C6/B4) & Link Cloudflare Tunnel: *(bổ sung ở commit chốt sau khi chạy phiên ≥ 3 lượt chuẩn và mở tunnel)*
+- Transcript chat live 6 lượt trên `v7` (`C6`/`B4`): `starter_v0/transcripts/ui_v7_openai_20261111T103408555020.transcript.json`
+- Link Cloudflare Tunnel dùng thử: `https://meals-widescreen-seeking-oil.trycloudflare.com` (chạy `cloudflared tunnel --url http://localhost:8501`, `HTTP 200`)
+- Báo cáo nhóm (Phần A, B4, B5a UI, Mục 5): `report/team/group_report.md`
 
 
 ## TranVietAnh-2A202604029
