@@ -54,12 +54,6 @@ Ngoài các version:
 - **Version log**: `starter_v0/artifacts/version_log.csv` (v0–v7, có hash, giả thuyết, metric trước/sau).
 - **Commit**: `62d409a` (v0), `1d1be28` (v1), `a8b1d00` (v2), `a9c8cda` (v3), `1ec845d` (v4), `d1fa954` (v5), `e02142c` (v6), `fe451fc` (v7), `cf93ba3` (B1/B2).
 - **Test**: `pytest` 72 passed, 14 skipped, 0 failed. `tests/test_tool_contract.py` xanh sau mỗi lần sửa `tools.yaml`.
-- **AI/công cụ đã dùng và cách tự kiểm tra kết quả**: dùng Claude Code để đọc run JSON, đề xuất giả thuyết, soạn câu chữ cho prompt/tool declaration, và nháp bảng báo cáo. Cách tự kiểm tra:
-  - Mọi số liệu trong log và báo cáo đều lấy từ run JSON thật, không lấy từ dự đoán.
-  - Chạy `pytest` sau mỗi lần sửa `tools.yaml`.
-  - Đối chiếu hash trong run với file đang commit.
-  - Quét key API thật trong các file trước mỗi lần push.
-  - Khi kết quả không như dự đoán (v2 không sửa được R12; v3 tăng điểm nhưng không nhờ tool mới; v7 có M06 fail), ghi đúng kết quả thay vì sửa lại cho đẹp.
 
 ## 5. Tự đánh giá
 
