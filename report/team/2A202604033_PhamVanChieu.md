@@ -27,10 +27,10 @@ Theo phân công trong [TEAM.md](../../TEAM.md) (Vai 4 — UI, chat live & báo 
    - Xây dựng sidebar hỗ trợ demo/showdown: chọn provider/model, 7 câu hỏi mẫu chạy nhanh (bao gồm test `verify_reference`), xem danh sách tools & system prompt đang nạp, trạng thái API key (không lộ secret), tự động lưu và cho phép tải xuống transcript JSON theo đúng chuẩn `chat.py`.
 2. **Cập nhật dependency, triển khai link dùng thử và báo cáo:**
    - Cài đặt `streamlit==1.67.0` trong môi trường ảo và bổ sung `streamlit>=1.50.0` vào `starter_v0/requirements.txt`.
-   - Khởi chạy Cloudflare Tunnel (`cloudflared tunnel --url http://localhost:8501`) mở link public `https://meals-widescreen-seeking-oil.trycloudflare.com` (đã kiểm tra `HTTP 200`).
+   - Triển khai public 24/7 lên **Streamlit Community Cloud** qua URL cố định https://k5-l3b-day03-nhomabcd-researchagenttooleval-ehuprjfpn4sh5mypia.streamlit.app/ (cấu hình API keys qua *Streamlit Secrets*, đã kiểm tra `HTTP 200` và `/healthz` `ok`), đồng thời kiểm chứng chạy live qua Cloudflare Tunnel (`cloudflared tunnel --url http://localhost:8501`).
    - Khôi phục file mẫu `report/team/MSSV_HoTen.md`, điền đầy đủ thông tin cá nhân + link GitHub vào `TEAM.md`, cập nhật Phần A (`A1`–`A3` gồm cả `verify_reference`), bảng `B4`, mục UI (`B5a`) và Mục 5 trong `report/team/group_report.md`.
 3. **Thực hiện phiên chat live 6 lượt trên bản `v7` (`C6` / `B4`):**
-   - Chạy trực tiếp trên UI (`openai` / `gpt-4o-mini`, `Current` / `v7`) qua Cloudflare Tunnel: gồm `lookup` tin AI (Lượt 1), `verify_reference` DOI Crossref (Lượt 2), `clarify(text)` khi thiếu handle $\rightarrow$ bổ sung `@karpathy` gọi `timeline` (Lượt 3–4), và `clarify(yes_no)` trước khi `send` $\rightarrow$ hủy gửi an toàn không gọi `send` (Lượt 5–6).
+   - Chạy trực tiếp trên UI (`openai` / `gpt-4o-mini`, `Current` / `v7`): gồm `lookup` tin AI (Lượt 1), `verify_reference` DOI Crossref (Lượt 2), `clarify(text)` khi thiếu handle $\rightarrow$ bổ sung `@karpathy` gọi `timeline` (Lượt 3–4), và `clarify(yes_no)` trước khi `send` $\rightarrow$ hủy gửi an toàn không gọi `send` (Lượt 5–6).
    - Lưu thành công transcript tại `starter_v0/transcripts/ui_v7_openai_20261111T103408555020.transcript.json` và điền đầy đủ vào bảng `B4`.
 
 ## 4. Bằng chứng
@@ -43,15 +43,15 @@ Theo phân công trong [TEAM.md](../../TEAM.md) (Vai 4 — UI, chat live & báo 
   - `report/team/2A202604033_PhamVanChieu.md`
   - `starter_v0/transcripts/ui_v7_openai_20261111T103408555020.transcript.json` (transcript live 6 lượt chuẩn `C6` trên `v7`, `openai/gpt-4o-mini`)
   - `starter_v0/runs/v0_B_base_gemini_20261110T181044880645.json` (bằng chứng thực tế lỗi giới hạn 5 RPM — `9/20` case `provider_error` của Gemini free tier phục vụ Mục 5)
-  - **Link dùng thử public (Cloudflare Quick Tunnel):** `https://meals-widescreen-seeking-oil.trycloudflare.com` (`HTTP 200`)
+  - **Link dùng thử public 24/7 (Streamlit Community Cloud):** https://k5-l3b-day03-nhomabcd-researchagenttooleval-ehuprjfpn4sh5mypia.streamlit.app/ (`HTTP 200`, `/healthz` `{"status":"ok"}`)
 - **AI/công cụ đã dùng và cách tự kiểm tra kết quả:**
   - **Công cụ AI đã dùng:** Trợ lý AI coding (Antigravity) hỗ trợ giải thích cấu trúc repo/rubric, kiểm tra tích hợp với `chat.py` / `providers` / `tools`, và xây dựng `starter_v0/app.py`.
   - **Cách tự kiểm tra kết quả:**
     1. Chạy `pytest` trong `starter_v0/` sau khi kéo `v7` và `verify_reference` của nhóm để xác minh contract test + example test + unit test tool mới đều xanh (`72 passed, 14 skipped`, `0 failed`).
     2. Chạy kiểm thử tự động `streamlit.testing.v1.AppTest` cho `starter_v0/app.py` để kiểm tra chuyển đổi qua lại đủ cả 9 lựa chọn `Current` + `v7`..`v0`, nạp đủ 11 tools (kể cả `verify_reference`), hiển thị lỗi tool (`HTTPError 429`), cảnh báo `needs_confirmation`, và nút bấm `clarify` (`yes_no` / `choice`).
-    3. Khởi chạy `streamlit run app.py` (`HTTP 200` trên `http://localhost:8501`), mở `cloudflared tunnel --url http://localhost:8501` (`cloudflared version 2026.10.7`, `HTTP 200` qua URL công khai) và chat kiểm chứng live đủ 6 lượt, kiểm tra file transcript JSON không lộ API key/token.
+    3. Kiểm tra thực tế `HTTP 200` cả qua `http://localhost:8501`, Cloudflare Tunnel và link deploy Streamlit Cloud (`/healthz` `{"status":"ok"}`); chat live 6 lượt và kiểm tra transcript JSON không lộ API key/token.
 
 ## 5. Tự đánh giá
 
-- Đã hoàn thành toàn bộ đầu việc Vai 4 đúng phạm vi phân công: code UI/UX (`app.py`, `requirements.txt`, đổi snapshot `v0`–`v7`, minh bạch lỗi tool), Cloudflare Tunnel public, phiên chat live 6 lượt chuẩn `C6` (`transcripts/ui_v7_openai_20261111T103408555020.transcript.json`), Phần A (`A1`–`A3`), bảng `B4`, dòng UI ở `B5a`, Mục 5 trong `group_report.md`, `TEAM.md`, và báo cáo cá nhân — không chồng lấn phần của Hưng, Long hay Việt Anh.
-- Phần cuối cùng ở mức cả nhóm: nhắc Long bổ sung 2 ô `Tool mới` & `Unit test` ở bảng `B5a` rồi ghi `commit chốt` vào dòng 8 của `TEAM.md` khi cả 4 thành viên nộp link repo lên LMS.
+- Đã hoàn thành toàn bộ đầu việc Vai 4 đúng phạm vi phân công: code UI/UX (`app.py`, `requirements.txt`, đổi snapshot `v0`–`v7`, minh bạch lỗi tool), deploy UI công khai 24/7 trên Streamlit Community Cloud, phiên chat live 6 lượt chuẩn `C6` (`transcripts/ui_v7_openai_20261111T103408555020.transcript.json`), Phần A (`A1`–`A3`), bảng `B4`, dòng UI ở `B5a`, Mục 5 trong `group_report.md`, `TEAM.md`, và báo cáo cá nhân — không chồng lấn phần của Hưng, Long hay Việt Anh.
+- Phần cuối cùng trước khi nộp LMS: cập nhật mã `commit chốt` vào dòng 8 của `TEAM.md` sau khi các thành viên thống nhất không còn chỉnh sửa thêm trên nhánh `main`.
