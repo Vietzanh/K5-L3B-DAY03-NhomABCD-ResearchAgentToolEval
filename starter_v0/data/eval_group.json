@@ -57,25 +57,24 @@
       }
     },
     {
-      "id": "G03_lookup_general_not_news",
+      "id": "G03_verify_reference_crossref",
       "phase": "B",
-      "query": "Tra cứu thông tin tổng quan về kiến trúc RAG, không cần các tin tức mới.",
-      "failure_type": "wrong_arg_value",
+      "query": "Kiểm tra reference chính xác sau trong metadata Crossref: \"Attention Is All You Need\". Chỉ xác minh metadata của tài liệu này, không tìm paper mới.",
+      "failure_type": "wrong_tool",
       "expect": {
         "tool_calls": [
           {
-            "name": "lookup",
+            "name": "verify_reference",
             "args": {
-              "query": "kiến trúc RAG",
-              "topic": "general"
+              "reference": "Attention Is All You Need"
             }
           }
         ]
       },
       "metadata": {
-        "skill": "lookup_general_topic",
+        "skill": "verify_academic_reference",
         "difficulty": "medium",
-        "what_it_tests": "Yêu cầu tra cứu kiến thức nên dùng lookup với topic=general, không tự động chuyển sang news."
+        "what_it_tests": "Yêu cầu xác minh tiêu đề tài liệu học thuật trong metadata Crossref; phải route đến verify_reference thay vì papers, paper_text hoặc lookup."
       }
     },
     {
@@ -179,7 +178,7 @@
         },
         {
           "role": "user",
-          "content": "Vẫn là thông tin tổng quan, không phải news; tập trung vào ứng dụng quantum computing trong y tế."
+          "content": "Vẫn dùng topic general, không phải news; đặt query là \"ứng dụng quantum computing trong y tế\"."
         }
       ],
       "failure_type": "wrong_arg_value",
@@ -188,15 +187,16 @@
           {
             "name": "lookup",
             "args": {
+              "query": "ứng dụng quantum computing trong y tế",
               "topic": "general"
             }
           }
         ]
       },
       "metadata": {
-        "skill": "multiturn_lookup_preserve_topic",
+        "skill": "multiturn_lookup_preserve_topic_and_update_query",
         "difficulty": "medium",
-        "what_it_tests": "Sau khi chủ đề được thu hẹp qua nhiều lượt, agent vẫn phải giữ topic=general thay vì chuyển sang news."
+        "what_it_tests": "Qua nhiều lượt, agent phải thu hẹp query sang ứng dụng quantum computing trong y tế nhưng giữ topic=general, không tự chuyển sang news."
       }
     },
     {
@@ -213,7 +213,7 @@
         },
         {
           "role": "user",
-          "content": "Chỉ lấy 3 kết quả và sắp xếp theo ngày cập nhật gần nhất."
+          "content": "Giữ query là \"multimodal RAG\", chỉ lấy 3 kết quả và sắp xếp theo ngày cập nhật gần nhất."
         }
       ],
       "failure_type": "wrong_arg_value",
@@ -222,6 +222,7 @@
           {
             "name": "papers",
             "args": {
+              "query": "multimodal RAG",
               "max_results": 3,
               "sort_by": "lastUpdatedDate"
             }
@@ -231,7 +232,7 @@
       "metadata": {
         "skill": "multiturn_papers_sort_and_limit",
         "difficulty": "hard",
-        "what_it_tests": "Giữ chủ đề multimodal RAG từ context, cập nhật max_results=3 và chọn sort_by=lastUpdatedDate."
+        "what_it_tests": "Giữ query multimodal RAG từ context, cập nhật max_results=3 và chọn sort_by=lastUpdatedDate."
       }
     },
     {
@@ -254,7 +255,7 @@
       "metadata": {
         "skill": "multiturn_cancel_external_action",
         "difficulty": "medium",
-        "what_it_tests": "User rút lại yêu cầu publish; agent không được gọi send hoặc tiếp tục hành động gửi. Runner chỉ kiểm tra không có tool call, không chấm nội dung text từ chối."
+        "what_it_tests": "User rút lại yêu cầu publish trước khi xác nhận; agent không được gọi send hoặc tiếp tục hành động gửi. Runner chỉ kiểm tra không có tool call, không chấm nội dung text phản hồi."
       }
     },
     {
